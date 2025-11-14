@@ -1,0 +1,126 @@
+// © joebaus
+
+//@version=6
+indicator("Count Chart Preview")
+
+// How this works:
+// 
+// A `position.middle_center` table is drawn with a single column and as many rows as we need.
+// The table itself is transparent. Cells are used to style the final text.
+// 
+// To avoid having to manually type every cell's style params and row/column position, we create a map:
+// `map<string, tableCellStyle>'
+//      The `string` key holds the cell text.
+//      The `tableCellStyle` value holds the cell's style.
+//
+// There are 3 styles:
+//  1. tableHeaderStyle
+//  2. headerCellStyle
+//  3. codeCellStyle
+//
+// The order that elements are `map.put()` into the `map<string, tableCellStyle>` is the display order.
+// To rearrange where a cell/text is displayed, just change the order of where it's put to the map.
+//
+// StyleLibrary handles some logic to make applying bold and italic text onto table cells easier.
+
+import joebaus/StyleLibrary/10 as sty
+
+type tableCellStyle
+    float width
+    float height
+    color textColor
+    string horzAlign
+    string vertAlign
+    int textSize
+    color backgroundColor
+    string fontFamily
+    bool boldText
+    bool italicText
+
+method addCells(table id, map<string, tableCellStyle> cellMap) =>
+    for [i, key] in cellMap.keys()
+        cellStyle = cellMap.get(key)
+
+        id.cell(1, i, key, cellStyle.width, cellStyle.height, cellStyle.textColor, cellStyle.horzAlign, 
+          cellStyle.vertAlign, cellStyle.textSize, cellStyle.backgroundColor, '', cellStyle.fontFamily)
+
+        id.textFormat(1, i, cellStyle.boldText, cellStyle.italicText)
+
+//#region Table Style
+
+// Header Cell Styles
+float headerWidth = 0.0
+float headerHeight = 0
+color headerTextColor = #DBDBDB
+string headerHorzAlign = text.align_center
+string headerVertAlign = text.align_bottom
+int headerTextSize = 28
+color headerBackgroundColor = #ffffff00
+string headerFontFamily = font.family_default
+
+tableCellStyle headerCellStyle = tableCellStyle.new(headerWidth, headerHeight, headerTextColor, headerHorzAlign, 
+  headerVertAlign, headerTextSize, headerBackgroundColor, headerFontFamily, true, true)
+
+// Code Cell Styles
+float codeWidth = 0.0
+float codeHeight = 0
+color codeTextColor = #DBDBDB
+string codeHorzAlign = text.align_left
+string codeVertAlign = text.align_center
+int codeTextSize = 16
+color codeBackgroundColor = #111111
+string codeFontFamily = font.family_monospace
+
+tableCellStyle codeCellStyle = tableCellStyle.new(codeWidth, codeHeight, codeTextColor, codeHorzAlign, 
+  codeVertAlign, codeTextSize, codeBackgroundColor, codeFontFamily, true, false)
+
+// Table Header - same as `headerCellStyle` with minor changes.
+tableCellStyle tableHeaderStyle = tableCellStyle.new(headerWidth, headerHeight, headerTextColor, headerHorzAlign, 
+  headerVertAlign, 72, headerBackgroundColor, headerFontFamily, true, false)
+
+//#endregion Table Style
+
+//#region Table Content
+
+// Store string and style content in a map
+map<string, tableCellStyle> cellsMap = map.new<string, tableCellStyle>()
+
+// Each string variable is followed by a `,` so the respective `.put()` can be moved on the same line.
+
+string tableHeader = 'Count', cellsMap.put(tableHeader, tableHeaderStyle)
+
+// Count Element
+string countElementHeader = 'Count Element', cellsMap.put(countElementHeader, headerCellStyle)
+
+string countElementCode1 = '1 | pi = array.from(3, 1, 4, 1)', cellsMap.put(countElementCode1, codeCellStyle)
+string countElementCode2 = '2 | count1 = count(pi, 1) // Returns 2', cellsMap.put(countElementCode2, codeCellStyle)
+
+// Count String / Regex
+string countRegexHeader = 'Count String / Regex', cellsMap.put(countRegexHeader, headerCellStyle)
+
+string countRegexCode1 = '1 | strings = array.from(bullish, bear, bull, bearish, bull)', cellsMap.put(countRegexCode1, codeCellStyle)
+string countRegexCode2 = "2 | countRegex = strings.count('bull*') // Returns 3", cellsMap.put(countRegexCode2, codeCellStyle)
+
+// Count Map
+string countMapHeader = 'Count Map', cellsMap.put(countMapHeader, headerCellStyle)
+
+string countMapCode1 = '1 | dist = array.from(0.1, 0.2, 0.2, 0.5, 0.5, 0.5, 0.7, 0.9)', cellsMap.put(countMapCode1, codeCellStyle)
+string countMapCode2 = '2 | countMap = count(dist)', cellsMap.put(countMapCode2, codeCellStyle)
+string countMapCode3 = '3 | countMap.keys() // Returns [0.1, 0.2, 0.5, 0.7, 0.9]', cellsMap.put(countMapCode3, codeCellStyle)
+string countMapCode4 = '4 | countMap.values() // Returns [1, 2, 3, 1, 1]', cellsMap.put(countMapCode4, codeCellStyle)
+
+// Count Comparison
+string countComparisonHeader = 'Count Comparison', cellsMap.put(countComparisonHeader, headerCellStyle)
+
+string countComparisonCode1 = '1 | m = matrix.new<bool>(2, 2, false)', cellsMap.put(countComparisonCode1, codeCellStyle)
+string countComparisonCode2 = '2 | m.set(0, 0, true), m.set(1, 0, true)', cellsMap.put(countComparisonCode2, codeCellStyle)
+string countComparisonCode3 = '3 | m.set(0, 1, true), m.set(1, 1, false)', cellsMap.put(countComparisonCode3, codeCellStyle)
+string countComparisonCode4 = "4 | countNot = count(m, true, '!=') // Returns 1", cellsMap.put(countComparisonCode4, codeCellStyle)
+
+//#endregion Table Content
+
+table previewTable = table.new(position.middle_center, 3, 20, #ffffff00, #ffffff00, 0, #ffffff00, 0, false)
+
+// Draw Chart Preview
+if barstate.islast
+    previewTable.addCells(cellsMap)
