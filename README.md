@@ -95,7 +95,7 @@ When passing an array of values to count and a comparison operator, the operator
 intArray = array.from(2, 2, 2, 3, 4, 4, 4, 4, 4, 6, 6)
 values = array.from(3, 4)
 
-// Count the number of times and element is greater than 3 and 4
+// Count the number of times an element is greater than 3 and 4
 map<int, int> countMap = intArray.count(values, '>')
 array<int> mapKeys = countMap.keys() // Returns [3, 4]
 array<int> mapValues = countMap.values() // Returns [7, 2]
