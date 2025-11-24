@@ -2,9 +2,10 @@
 
 A Pine Script library of functions for counting the number of times (frequency) that elements occur in an array or matirx.
 
-## Usage
+- [View on TradingView](https://www.tradingview.com/script/NCvGg3Ef-Count/)
+- [Featured in Editors' Picks](https://www.tradingview.com/script/NCvGg3Ef-Count/#tc12597157)
 
-[View on TradingView](https://www.tradingview.com/script/NCvGg3Ef-Count/)
+## Usage
 
 Import the Count library.
 
